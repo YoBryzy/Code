@@ -1,6 +1,6 @@
 import { BarChart3, Eye, Heart, MessageCircle, Share2, Bookmark } from "lucide-react";
 import { getSessionContext } from "@/lib/account";
-import { createClient } from "@/lib/supabase/server";
+import { listMetricsRows } from "@/lib/queries";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Card } from "@/components/ui/card";
@@ -12,13 +12,7 @@ export default async function AnalyticsPage() {
   const ctx = await getSessionContext();
   if (!ctx) return null;
 
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("post_metrics")
-    .select("views, likes, comments, shares, saves")
-    .eq("account_id", ctx.account.id);
-
-  const rows = data ?? [];
+  const rows = await listMetricsRows(ctx.account.id);
   const sum = (k: "views" | "likes" | "comments" | "shares" | "saves") =>
     rows.reduce((acc: number, r: Record<string, number>) => acc + (r[k] ?? 0), 0);
 

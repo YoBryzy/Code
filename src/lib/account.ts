@@ -1,4 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
+import { DEMO_MODE } from "@/lib/demo-flag";
+import { demoContext } from "@/lib/demo";
 import type { Account } from "@/lib/types";
 
 export interface SessionContext {
@@ -13,6 +15,9 @@ export interface SessionContext {
  * Returns null when there is no authenticated user.
  */
 export async function getSessionContext(): Promise<SessionContext | null> {
+  // Demo mode: no auth, no database — return the seeded sample workspace.
+  if (DEMO_MODE) return demoContext;
+
   const supabase = await createClient();
   const {
     data: { user },

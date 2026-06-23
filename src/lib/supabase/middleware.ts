@@ -1,6 +1,7 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { publicEnv, isSupabaseConfigured } from "@/lib/env";
+import { DEMO_MODE } from "@/lib/demo-flag";
 
 type CookieToSet = { name: string; value: string; options: CookieOptions };
 
@@ -14,8 +15,8 @@ const PUBLIC_PATHS = ["/", "/login", "/signup", "/auth", "/api/connect", "/api/s
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
-  // If Supabase isn't configured yet, don't block the app — let public pages render.
-  if (!isSupabaseConfigured) return response;
+  // Demo mode (or unconfigured Supabase): don't gate routes — there's no auth.
+  if (DEMO_MODE || !isSupabaseConfigured) return response;
 
   const supabase = createServerClient(publicEnv.supabaseUrl, publicEnv.supabaseAnonKey, {
     cookies: {

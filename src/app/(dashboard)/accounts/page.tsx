@@ -1,12 +1,12 @@
 import { Link2, ShieldCheck } from "lucide-react";
 import { getSessionContext } from "@/lib/account";
-import { createClient } from "@/lib/supabase/server";
+import { listConnectedAccounts } from "@/lib/queries";
+import { DEMO_MODE } from "@/lib/demo-flag";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Card, CardBody } from "@/components/ui/card";
 import { Badge, statusTone } from "@/components/ui/badge";
 import { buttonClasses } from "@/components/ui/button";
 import { cn, humanize } from "@/lib/utils";
-import type { ConnectedAccount } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -20,13 +20,7 @@ export default async function AccountsPage() {
   const ctx = await getSessionContext();
   if (!ctx) return null;
 
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("connected_accounts")
-    .select("id, platform, username, display_name, status, created_at")
-    .eq("account_id", ctx.account.id);
-
-  const connected = (data ?? []) as ConnectedAccount[];
+  const connected = await listConnectedAccounts(ctx.account.id);
   const byPlatform = new Map(connected.map((c) => [c.platform, c]));
 
   return (
@@ -51,9 +45,18 @@ export default async function AccountsPage() {
                     {acct?.username ? `@${acct.username}` : p.note}
                   </p>
                 </div>
-                <a href={`/api/connect/${p.id}`} className={cn(buttonClasses(acct ? "outline" : "primary", "sm"))}>
-                  {acct ? "Reconnect" : "Connect"}
-                </a>
+                {DEMO_MODE ? (
+                  <span
+                    className={cn(buttonClasses("outline", "sm"), "cursor-not-allowed opacity-60")}
+                    title="Connecting is disabled in demo mode"
+                  >
+                    {acct ? "Connected" : "Connect"}
+                  </span>
+                ) : (
+                  <a href={`/api/connect/${p.id}`} className={cn(buttonClasses(acct ? "outline" : "primary", "sm"))}>
+                    {acct ? "Reconnect" : "Connect"}
+                  </a>
+                )}
               </CardBody>
             </Card>
           );

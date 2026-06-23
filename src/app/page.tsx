@@ -11,6 +11,7 @@ import {
   ShoppingBag,
 } from "lucide-react";
 import { buttonClasses } from "@/components/ui/button";
+import { DEMO_MODE } from "@/lib/demo-flag";
 import { cn } from "@/lib/utils";
 
 const STEPS = [
@@ -46,8 +47,8 @@ export default function LandingPage() {
           <Link href="/login" className={buttonClasses("ghost", "sm")}>
             Log in
           </Link>
-          <Link href="/signup" className={buttonClasses("primary", "sm")}>
-            Get started
+          <Link href={DEMO_MODE ? "/dashboard" : "/signup"} className={buttonClasses("primary", "sm")}>
+            {DEMO_MODE ? "View demo" : "Get started"}
           </Link>
         </nav>
       </header>
@@ -70,14 +71,24 @@ export default function LandingPage() {
           FacelessReels meets an AI TikTok-ads agency — focused on products.
         </p>
         <div className="mt-8 flex items-center justify-center gap-3">
-          <Link href="/signup" className={buttonClasses("primary", "lg")}>
-            Start free <ArrowRight className="h-4 w-4" />
-          </Link>
+          {DEMO_MODE ? (
+            <Link href="/dashboard" className={buttonClasses("primary", "lg")}>
+              Explore the live demo <ArrowRight className="h-4 w-4" />
+            </Link>
+          ) : (
+            <Link href="/signup" className={buttonClasses("primary", "lg")}>
+              Start free <ArrowRight className="h-4 w-4" />
+            </Link>
+          )}
           <Link href="/login" className={buttonClasses("outline", "lg")}>
             Log in
           </Link>
         </div>
-        <p className="mt-3 text-xs text-ink-500">No credit card required · Posts only content you own</p>
+        <p className="mt-3 text-xs text-ink-500">
+          {DEMO_MODE
+            ? "Demo mode · seeded sample data · no signup needed"
+            : "No credit card required · Posts only content you own"}
+        </p>
       </section>
 
       {/* How it works */}
@@ -123,8 +134,8 @@ export default function LandingPage() {
             Spin up a campaign, let the AI plan a month of fresh videos, review them in one
             queue, and let autopilot handle posting.
           </p>
-          <Link href="/signup" className={cn(buttonClasses("primary", "lg"), "mt-6")}>
-            Create your first campaign <ArrowRight className="h-4 w-4" />
+          <Link href={DEMO_MODE ? "/dashboard" : "/signup"} className={cn(buttonClasses("primary", "lg"), "mt-6")}>
+            {DEMO_MODE ? "Open the demo dashboard" : "Create your first campaign"} <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </section>

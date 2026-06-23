@@ -3,7 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { DEMO_MODE } from "@/lib/demo-flag";
 import type { Platform } from "@/lib/types";
+
+const DEMO_MSG = "Demo mode — add your Supabase + Anthropic keys to enable this. The dashboard you're viewing is seeded sample data.";
 
 /** Generic "POST this endpoint, then refresh or redirect" button with states. */
 export function RunActionButton({
@@ -26,6 +29,10 @@ export function RunActionButton({
   const [error, setError] = useState<string | null>(null);
 
   async function run() {
+    if (DEMO_MODE) {
+      setError(DEMO_MSG);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -79,6 +86,7 @@ export function CampaignForm({ productId, defaultName }: { productId: string; de
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    if (DEMO_MODE) return setError(DEMO_MSG);
     if (platforms.length === 0) return setError("Pick at least one platform.");
     setLoading(true);
     try {

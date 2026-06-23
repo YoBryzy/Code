@@ -2,11 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { getSessionContext } from "@/lib/account";
-import { createClient } from "@/lib/supabase/server";
+import { getCampaignBundle } from "@/lib/queries";
 import { Card, CardBody } from "@/components/ui/card";
 import { Badge, statusTone } from "@/components/ui/badge";
 import { humanize } from "@/lib/utils";
-import type { Campaign, ContentPlanDay } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -19,23 +18,10 @@ export default async function CampaignDetailPage({
   const ctx = await getSessionContext();
   if (!ctx) return null;
 
-  const supabase = await createClient();
-  const { data: campaign } = await supabase
-    .from("campaigns")
-    .select("*")
-    .eq("id", id)
-    .eq("account_id", ctx.account.id)
-    .maybeSingle();
+  const { campaign, items } = await getCampaignBundle(ctx.account.id, id);
   if (!campaign) notFound();
-  const c = campaign as Campaign;
-
-  const { data: items } = await supabase
-    .from("content_plan_items")
-    .select("id, day_index, plan, status")
-    .eq("campaign_id", id)
-    .order("day_index", { ascending: true });
-
-  const days = (items ?? []) as { id: string; day_index: number; plan: ContentPlanDay; status: string }[];
+  const c = campaign;
+  const days = items;
 
   return (
     <div className="mx-auto max-w-5xl">

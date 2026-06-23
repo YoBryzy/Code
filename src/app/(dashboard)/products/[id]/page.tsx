@@ -2,14 +2,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Sparkles, Wand2, Megaphone, AlertTriangle } from "lucide-react";
 import { getSessionContext } from "@/lib/account";
-import { createClient } from "@/lib/supabase/server";
+import { getProductBundle } from "@/lib/queries";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge, statusTone } from "@/components/ui/badge";
 import { BriefView } from "@/components/products/brief-view";
 import { StrategyView } from "@/components/products/strategy-view";
 import { RunActionButton, CampaignForm } from "@/components/products/actions";
 import { humanize } from "@/lib/utils";
-import type { Product, StrategyPack, CreativeTeardown } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -22,36 +21,9 @@ export default async function ProductDetailPage({
   const ctx = await getSessionContext();
   if (!ctx) return null;
 
-  const supabase = await createClient();
-  const { data: product } = await supabase
-    .from("products")
-    .select("*")
-    .eq("id", id)
-    .eq("account_id", ctx.account.id)
-    .maybeSingle();
-
+  const { product, pack, teardown } = await getProductBundle(ctx.account.id, id);
   if (!product) notFound();
-  const p = product as Product;
-
-  const [{ data: packRow }, { data: teardownRow }] = await Promise.all([
-    supabase
-      .from("strategy_packs")
-      .select("id, pack")
-      .eq("product_id", id)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
-    supabase
-      .from("creative_teardowns")
-      .select("teardown")
-      .eq("product_id", id)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
-  ]);
-
-  const pack = (packRow?.pack ?? null) as StrategyPack | null;
-  const teardown = (teardownRow?.teardown ?? null) as CreativeTeardown | null;
+  const p = product;
   const hasBrief = !!p.brief;
 
   return (

@@ -1,6 +1,6 @@
 import { CalendarDays } from "lucide-react";
 import { getSessionContext } from "@/lib/account";
-import { createClient } from "@/lib/supabase/server";
+import { listScheduledPosts } from "@/lib/queries";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Card } from "@/components/ui/card";
@@ -14,14 +14,7 @@ export default async function CalendarPage() {
   const ctx = await getSessionContext();
   if (!ctx) return null;
 
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("scheduled_posts")
-    .select("id, platform, scheduled_for, caption, status")
-    .eq("account_id", ctx.account.id)
-    .order("scheduled_for", { ascending: true });
-
-  const posts = (data ?? []) as ScheduledPost[];
+  const posts = await listScheduledPosts(ctx.account.id);
 
   // Group by date.
   const byDay = new Map<string, ScheduledPost[]>();

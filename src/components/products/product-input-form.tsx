@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Link2, Upload, PenLine, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
+import { DEMO_MODE } from "@/lib/demo-flag";
 import { cn } from "@/lib/utils";
 import type { SourceType } from "@/lib/types";
 
@@ -38,6 +39,11 @@ export function ProductInputForm() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+
+    if (DEMO_MODE)
+      return setError(
+        "Demo mode — adding products is disabled. Open the seeded sample product to explore the flow.",
+      );
 
     if (mode === "link" && !url.trim()) return setError("Paste a product or video URL.");
     if (mode === "manual" && !name.trim()) return setError("Give your product a name.");

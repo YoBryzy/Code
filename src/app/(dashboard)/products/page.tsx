@@ -1,13 +1,12 @@
 import Link from "next/link";
 import { Package } from "lucide-react";
 import { getSessionContext } from "@/lib/account";
-import { createClient } from "@/lib/supabase/server";
+import { listProducts } from "@/lib/queries";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Card } from "@/components/ui/card";
 import { Badge, statusTone } from "@/components/ui/badge";
 import { humanize } from "@/lib/utils";
-import type { Product } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -15,17 +14,7 @@ export default async function ProductsPage() {
   const ctx = await getSessionContext();
   if (!ctx) return null;
 
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("products")
-    .select("id, name, source_type, source_url, status, created_at")
-    .eq("account_id", ctx.account.id)
-    .order("created_at", { ascending: false });
-
-  const products = (data ?? []) as Pick<
-    Product,
-    "id" | "name" | "source_type" | "source_url" | "status" | "created_at"
-  >[];
+  const products = await listProducts(ctx.account.id);
 
   return (
     <div>

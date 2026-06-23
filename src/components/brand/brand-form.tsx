@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { DEMO_MODE } from "@/lib/demo-flag";
 import type { BrandKit } from "@/lib/types";
 
 export function BrandForm({ initial }: { initial: Partial<BrandKit> | null }) {
@@ -27,6 +28,10 @@ export function BrandForm({ initial }: { initial: Partial<BrandKit> | null }) {
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
+    if (DEMO_MODE) {
+      setError("Demo mode — add your Supabase keys to save a brand kit.");
+      return;
+    }
     setSaving(true);
     setError(null);
     try {

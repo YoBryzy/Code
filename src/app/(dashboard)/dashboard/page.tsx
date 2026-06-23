@@ -1,33 +1,18 @@
 import Link from "next/link";
 import { Package, Clapperboard, CalendarClock, Megaphone, ArrowRight, Sparkles } from "lucide-react";
 import { getSessionContext } from "@/lib/account";
-import { createClient } from "@/lib/supabase/server";
+import { getCounts } from "@/lib/queries";
 import { Card } from "@/components/ui/card";
 import { buttonClasses } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-async function count(table: string, accountId: string): Promise<number> {
-  const supabase = await createClient();
-  const { count } = await supabase
-    .from(table)
-    .select("id", { count: "exact", head: true })
-    .eq("account_id", accountId);
-  return count ?? 0;
-}
-
 export default async function DashboardPage() {
   const ctx = await getSessionContext();
   if (!ctx) return null;
-  const accountId = ctx.account.id;
 
-  const [products, videos, scheduled, campaigns] = await Promise.all([
-    count("products", accountId),
-    count("videos", accountId),
-    count("scheduled_posts", accountId),
-    count("campaigns", accountId),
-  ]);
+  const { products, videos, scheduled, campaigns } = await getCounts(ctx.account.id);
 
   const stats = [
     { label: "Products", value: products, icon: Package, href: "/products" },

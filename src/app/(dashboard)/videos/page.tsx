@@ -1,12 +1,11 @@
 import { Clapperboard } from "lucide-react";
 import { getSessionContext } from "@/lib/account";
-import { createClient } from "@/lib/supabase/server";
+import { listVideos } from "@/lib/queries";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Card } from "@/components/ui/card";
 import { Badge, statusTone } from "@/components/ui/badge";
 import { humanize } from "@/lib/utils";
-import type { Video } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -14,14 +13,7 @@ export default async function VideosPage() {
   const ctx = await getSessionContext();
   if (!ctx) return null;
 
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("videos")
-    .select("id, title, status, duration_sec, thumbnail_path, created_at")
-    .eq("account_id", ctx.account.id)
-    .order("created_at", { ascending: false });
-
-  const videos = (data ?? []) as Video[];
+  const videos = await listVideos(ctx.account.id);
 
   return (
     <div>

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { LogOut, Plus } from "lucide-react";
 import { buttonClasses } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { DEMO_MODE } from "@/lib/demo-flag";
 import { cn } from "@/lib/utils";
 
 export function Topbar({ accountName, email }: { accountName: string; email: string | null }) {
@@ -14,11 +16,15 @@ export function Topbar({ accountName, email }: { accountName: string; email: str
         <Link href="/products/new" className={buttonClasses("primary", "sm")}>
           <Plus className="h-4 w-4" /> New product
         </Link>
-        <form action="/auth/signout" method="post">
-          <button type="submit" className={cn(buttonClasses("ghost", "sm"))} title="Sign out">
-            <LogOut className="h-4 w-4" />
-          </button>
-        </form>
+        {DEMO_MODE ? (
+          <Badge tone="amber">Demo</Badge>
+        ) : (
+          <form action="/auth/signout" method="post">
+            <button type="submit" className={cn(buttonClasses("ghost", "sm"))} title="Sign out">
+              <LogOut className="h-4 w-4" />
+            </button>
+          </form>
+        )}
       </div>
     </header>
   );
