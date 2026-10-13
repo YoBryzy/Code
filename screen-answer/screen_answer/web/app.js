@@ -90,7 +90,7 @@ function setAiBanner(mode) {
     $("aiBannerText").textContent = "AI is using your computer — reading your screen to answer";
   } else if (mode === "done") {
     el.dataset.state = "done";
-    $("aiBannerText").textContent = "Finished — the AI has stopped. Nothing was clicked or typed.";
+    $("aiBannerText").textContent = "The AI has stopped. Nothing was clicked or typed.";
     bannerTimer = setTimeout(() => { el.dataset.state = "off"; }, 6000);
   } else {
     el.dataset.state = "off";
@@ -265,6 +265,7 @@ function handleEvent(ev) {
       break;
     case "region":
       setBusy(false);
+      setAiBanner("off"); // captured, but nothing has been answered yet
       setStage("idle");
       openRegion(ev);
       break;
