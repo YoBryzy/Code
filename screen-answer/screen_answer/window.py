@@ -42,10 +42,8 @@ if sys.platform == "win32":
 
     def show_app_window() -> None:
         for hwnd in _find_windows() or _find_minimized():
+            # Restore only; Screen Answer never sends keystrokes or clicks.
             _user32.ShowWindow(hwnd, _SW_RESTORE)
-            # Tapping Alt lets a background process take the foreground on Windows.
-            _user32.keybd_event(0x12, 0, 0, 0)
-            _user32.keybd_event(0x12, 0, 2, 0)
             _user32.SetForegroundWindow(hwnd)
 
     def _find_minimized() -> list[int]:

@@ -80,7 +80,26 @@ function setSegment(seg, value) {
   seg.querySelectorAll("button").forEach((b) => b.classList.toggle("active", b.dataset.value === String(value)));
 }
 
+// ---------- "AI is using your computer" banner ----------
+let bannerTimer = null;
+function setAiBanner(mode) {
+  const el = $("aiBanner");
+  clearTimeout(bannerTimer);
+  if (mode === "on") {
+    el.dataset.state = "on";
+    $("aiBannerText").textContent = "AI is using your computer — reading your screen to answer";
+  } else if (mode === "done") {
+    el.dataset.state = "done";
+    $("aiBannerText").textContent = "Finished — the AI has stopped. Nothing was clicked or typed.";
+    bannerTimer = setTimeout(() => { el.dataset.state = "off"; }, 6000);
+  } else {
+    el.dataset.state = "off";
+  }
+}
+
 function setBusy(busy) {
+  if (busy && !state.busy) setAiBanner("on");
+  if (!busy && state.busy) setAiBanner("done");
   state.busy = busy;
   $("scanBtn").disabled = busy;
   $("regionBtn").disabled = busy;

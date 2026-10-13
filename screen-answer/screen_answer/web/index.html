@@ -46,12 +46,18 @@
       </div>
     </header>
 
+    <div class="ai-banner" id="aiBanner" data-state="off" role="status" aria-live="polite">
+      <span class="ai-banner-dot"></span>
+      <span class="ai-banner-text" id="aiBannerText">AI is using your computer</span>
+      <span class="ai-banner-note">Read-only · it never clicks or types</span>
+    </div>
+
     <main class="layout">
       <!-- Left: capture controls -->
       <section class="panel capture-panel">
         <div class="panel-head">
           <h2>Capture</h2>
-          <span class="muted small">Works in any app</span>
+          <span class="readonly-badge">Read-only</span>
         </div>
 
         <button class="scan-btn" id="scanBtn">
@@ -99,8 +105,8 @@
 
         <div class="tips">
           <div class="tip"><span class="tip-num">1</span>Open the question in any app or website.</div>
-          <div class="tip"><span class="tip-num">2</span>Press the hotkey — this window hides while it captures.</div>
-          <div class="tip"><span class="tip-num">3</span>Read the answer here, then ask follow-ups.</div>
+          <div class="tip"><span class="tip-num">2</span>Press the hotkey — the AI reads your screen and answers every question it sees.</div>
+          <div class="tip"><span class="tip-num">3</span>It stops when it's done. It never clicks or types anything — you enter the answers.</div>
         </div>
       </section>
 
