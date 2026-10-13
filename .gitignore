@@ -43,3 +43,9 @@ yarn-error.log*
 # rendered video scratch space
 /tmp-renders
 *.local.mp4
+
+# screen-answer desktop app build output
+/screen-answer/build/
+/screen-answer/dist/
+/screen-answer/*.spec
+__pycache__/

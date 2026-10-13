@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Screen Answer</title>
+  <link rel="icon" href="assets/icon.png">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <!-- Background: Higgsfield-generated aurora art + animated light blobs -->
+  <div class="backdrop" aria-hidden="true">
+    <div class="backdrop-art"></div>
+    <div class="blob blob-a"></div>
+    <div class="blob blob-b"></div>
+    <div class="blob blob-c"></div>
+    <div class="grain"></div>
+  </div>
+
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">
+          <img src="assets/icon.png" alt="" onerror="this.remove()">
+          <svg viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b6cff"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="#0c1230" stroke="url(#lg)" stroke-width="1.5"/><circle cx="16" cy="16" r="7" fill="none" stroke="url(#lg)" stroke-width="2"/><circle cx="16" cy="16" r="2.4" fill="#e9e5ff"/></svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">Screen Answer</span>
+          <span class="brand-sub" id="versionTag">AI screen reader</span>
+        </div>
+      </div>
+
+      <div class="status-pill" id="statusPill" data-stage="idle">
+        <span class="status-dot"></span>
+        <span class="status-text" id="statusText">Ready</span>
+      </div>
+
+      <div class="top-actions">
+        <button class="chip-btn" id="modelChip" title="Model and effort">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2l2.2 4.8L17 9l-4.8 2.2L10 16l-2.2-4.8L3 9l4.8-2.2z" fill="currentColor"/></svg>
+          <span id="modelChipText">Claude</span>
+        </button>
+        <button class="icon-btn" id="settingsBtn" title="Settings" aria-label="Settings">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <!-- Left: capture controls -->
+      <section class="panel capture-panel">
+        <div class="panel-head">
+          <h2>Capture</h2>
+          <span class="muted small">Works in any app</span>
+        </div>
+
+        <button class="scan-btn" id="scanBtn">
+          <span class="scan-btn-glow"></span>
+          <span class="scan-btn-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M4 12h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </span>
+          <span class="scan-btn-text">
+            <strong>Scan screen</strong>
+            <span class="kbd-row" id="hotkeyFull"></span>
+          </span>
+        </button>
+
+        <button class="ghost-btn" id="regionBtn">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-dasharray="3 3"/><path d="M9 12h6M12 9v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span>Select area</span>
+          <span class="kbd-row" id="hotkeyRegion"></span>
+        </button>
+
+        <div class="option-group">
+          <label class="option-label">Delay</label>
+          <div class="segmented" id="delaySeg">
+            <button data-value="0" class="active">Off</button>
+            <button data-value="3">3s</button>
+            <button data-value="5">5s</button>
+          </div>
+        </div>
+
+        <div class="option-group" id="scopeGroup">
+          <label class="option-label">Scan</label>
+          <div class="segmented" id="scopeSeg">
+            <button data-value="one" class="active">This monitor</button>
+            <button data-value="all">All monitors</button>
+          </div>
+        </div>
+
+        <div class="preview-card" id="previewCard">
+          <div class="preview-empty" id="previewEmpty">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 21h8M12 17v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span>Your capture appears here</span>
+          </div>
+          <div class="preview-images" id="previewImages"></div>
+          <div class="scan-beam"></div>
+        </div>
+
+        <div class="tips">
+          <div class="tip"><span class="tip-num">1</span>Open the question in any app or website.</div>
+          <div class="tip"><span class="tip-num">2</span>Press the hotkey — this window hides while it captures.</div>
+          <div class="tip"><span class="tip-num">3</span>Read the answer here, then ask follow-ups.</div>
+        </div>
+      </section>
+
+      <!-- Right: answers -->
+      <section class="panel answer-panel">
+        <div class="panel-head">
+          <h2>Answer</h2>
+          <div class="answer-tools">
+            <button class="tool-btn" id="stopBtn" disabled>
+              <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="5" y="5" width="10" height="10" rx="2" fill="currentColor"/></svg>Stop
+            </button>
+            <button class="tool-btn" id="copyBtn">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M13 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>Copy
+            </button>
+          </div>
+        </div>
+
+        <div class="stepper" id="stepper" hidden>
+          <div class="step" data-step="capturing"><span class="step-dot"></span>Capture</div>
+          <div class="step-line"></div>
+          <div class="step" data-step="reading"><span class="step-dot"></span>Read screen</div>
+          <div class="step-line"></div>
+          <div class="step" data-step="thinking"><span class="step-dot"></span>Think</div>
+          <div class="step-line"></div>
+          <div class="step" data-step="answering"><span class="step-dot"></span>Answer</div>
+        </div>
+
+        <div class="conversation" id="conversation">
+          <div class="empty-state" id="emptyState">
+            <div class="empty-art">
+              <img src="assets/empty.png" alt="" onerror="this.remove()">
+              <div class="empty-ring"></div>
+            </div>
+            <h3>Ask anything that's on your screen</h3>
+            <p>Press <span class="kbd-row inline" id="hotkeyFullEmpty"></span> anywhere. Screen Answer reads everything visible — text, code, charts, diagrams and answer choices — and answers the question.</p>
+          </div>
+        </div>
+
+        <form class="composer" id="composer" autocomplete="off">
+          <input id="followInput" placeholder="Ask a follow-up about this screen…" disabled>
+          <button type="submit" id="sendBtn" class="send-btn" disabled aria-label="Send">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <!-- Area selection -->
+  <div class="overlay region-overlay" id="regionOverlay" hidden>
+    <div class="region-top">
+      <div>
+        <strong>Drag around the question</strong>
+        <span class="muted"> · Enter to answer · Esc to cancel</span>
+      </div>
+      <div class="region-actions">
+        <button class="ghost-btn small" id="regionCancel">Cancel</button>
+        <button class="primary-btn small" id="regionConfirm" disabled>Answer selection</button>
+      </div>
+    </div>
+    <div class="region-stage" id="regionStage">
+      <img id="regionImg" alt="Screen capture" draggable="false">
+      <div class="region-box" id="regionBox" hidden><span class="region-size" id="regionSize"></span></div>
+    </div>
+  </div>
+
+  <!-- Countdown -->
+  <div class="overlay countdown-overlay" id="countdown" hidden>
+    <div class="countdown-ring">
+      <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" class="track"/><circle cx="60" cy="60" r="52" class="progress" id="countdownProgress"/></svg>
+      <span id="countdownNum">3</span>
+    </div>
+    <p>Switch to your question — capturing soon</p>
+  </div>
+
+  <!-- Settings drawer -->
+  <div class="drawer-backdrop" id="drawerBackdrop" hidden></div>
+  <aside class="drawer" id="drawer" aria-hidden="true">
+    <div class="drawer-head">
+      <h2>Settings</h2>
+      <button class="icon-btn" id="drawerClose" aria-label="Close settings">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <form class="drawer-body" id="settingsForm" autocomplete="off">
+      <div class="field">
+        <label for="apiKey">Anthropic API key</label>
+        <input id="apiKey" type="password" placeholder="sk-ant-…">
+        <span class="hint" id="keyHint">Get one at console.anthropic.com → API keys.</span>
+      </div>
+      <div class="field">
+        <label for="modelSelect">Model</label>
+        <select id="modelSelect"></select>
+      </div>
+      <div class="field">
+        <label>Effort</label>
+        <div class="segmented wide" id="effortSeg"></div>
+        <span class="hint">Lower is faster; higher thinks harder on tricky problems.</span>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="monitorSelect">Monitor</label>
+          <select id="monitorSelect"></select>
+        </div>
+        <div class="field">
+          <label class="switch-label">
+            <input type="checkbox" id="minimizeToggle">
+            <span class="switch"></span>
+            Hide window while capturing
+          </label>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="hotkeyFullInput">Scan hotkey</label>
+          <input id="hotkeyFullInput" placeholder="<ctrl>+<shift>+a">
+        </div>
+        <div class="field">
+          <label for="hotkeyRegionInput">Select-area hotkey</label>
+          <input id="hotkeyRegionInput" placeholder="<ctrl>+<shift>+s">
+        </div>
+      </div>
+      <div class="field">
+        <label for="extraInput">Extra instructions</label>
+        <textarea id="extraInput" rows="3" placeholder='e.g. "Answer in Spanish" or "Only give the final answer"'></textarea>
+      </div>
+      <div class="drawer-foot">
+        <button type="button" class="ghost-btn small" id="settingsCancel">Cancel</button>
+        <button type="submit" class="primary-btn small">Save settings</button>
+      </div>
+    </form>
+  </aside>
+
+  <!-- First-run welcome -->
+  <div class="overlay welcome-overlay" id="welcome" hidden>
+    <div class="welcome-card">
+      <div class="welcome-logo"><img src="assets/icon.png" alt="" onerror="this.remove()"></div>
+      <h2>Welcome to Screen Answer</h2>
+      <p>Paste your Anthropic API key to start. It's stored only on this computer.</p>
+      <form id="welcomeForm" autocomplete="off">
+        <input id="welcomeKey" type="password" placeholder="sk-ant-…" required>
+        <button class="primary-btn" type="submit">Get started</button>
+      </form>
+      <span class="hint">Don't have one? Create a key at console.anthropic.com.</span>
+    </div>
+  </div>
+
+  <div class="toasts" id="toasts"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+name: Build Screen Answer (.exe)
+
+on:
+  push:
+    paths:
+      - "screen-answer/**"
+      - ".github/workflows/screen-answer.yml"
+    tags:
+      - "screen-answer-v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write # only used to attach the .exe to a release on screen-answer-v* tags
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: screen-answer
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt pyinstaller
+
+      - name: Smoke test
+        run: python -c "import screen_answer.main, screen_answer.server; print('imports ok')"
+
+      - name: Build ScreenAnswer.exe
+        run: python build.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ScreenAnswer-windows
+          path: screen-answer/dist/ScreenAnswer.exe
+          if-no-files-found: error
+
+      - name: Attach to release
+        if: startsWith(github.ref, 'refs/tags/screen-answer-v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: screen-answer/dist/ScreenAnswer.exe
