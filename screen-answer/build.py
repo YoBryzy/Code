@@ -20,16 +20,11 @@ def make_icon() -> Path | None:
     ico = HERE / "build" / "icon.ico"
     ico.parent.mkdir(exist_ok=True)
     img = Image.open(png).convert("RGBA")
-    side = min(img.size)
-    # The generated art has a margin around the tile; crop it so the icon fills the space.
-    inset = round(side * 0.08)
-    img = img.crop((inset, inset, side - inset, side - inset))
     img.save(ico, sizes=[(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)])
     return ico
 
 
 def main() -> None:
-    subprocess.run([sys.executable, str(HERE / "fetch_assets.py")], check=True)
     icon = make_icon()
     web = HERE / "screen_answer" / "web"
     args = [

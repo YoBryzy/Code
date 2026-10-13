@@ -16,8 +16,8 @@ answer back. Press **Ctrl+Shift+S** to drag a box around one question instead.
   explanation. You can ask follow-up questions about the same screen.
 - **Settings**: model (Opus 5.5 by default), effort level, monitor, hotkeys, and extra
   instructions such as "answer in Spanish".
-- The UI uses artwork generated with Higgsfield: the app icon, the aurora background and the
-  empty-state illustration.
+- The UI uses artwork generated with Higgsfield (`screen_answer/web/assets/`): the app icon,
+  the aurora background and the empty-state illustration.
 
 ## Download
 
@@ -64,7 +64,6 @@ never saved to disk.
 ```bash
 cd screen-answer
 pip install -r requirements.txt
-python fetch_assets.py   # download the Higgsfield artwork (optional; the UI has CSS fallbacks)
 python -m screen_answer  # starts the server and opens Chrome
 ```
 
