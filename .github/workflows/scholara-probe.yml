@@ -8,22 +8,18 @@ on:
 jobs:
   probe:
     runs-on: windows-latest
-    timeout-minutes: 20
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: python -m pip install mss
-      - run: python scholara/ci/probe/probe.py
+      - run: python -m pip install mss pillow
+      - uses: actions/cache@v4
+        with:
+          path: D:\models
+          key: probe-models-qwen3vl-v1
+      - run: python scholara/ci/probe/probe2.py
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: GPU / vulkan
-        shell: pwsh
-        run: |
-          Get-CimInstance Win32_VideoController | Select-Object Name, AdapterRAM, DriverVersion | Format-List
-          Test-Path C:\Windows\System32\vulkan-1.dll
-          Get-CimInstance Win32_Processor | Select-Object Name, NumberOfCores, NumberOfLogicalProcessors | Format-List
-          Get-CimInstance Win32_ComputerSystem | Select-Object TotalPhysicalMemory | Format-List
-          (Get-Item "C:\Program Files (x86)\Microsoft\EdgeWebView\Application\*\msedgewebview2.exe" -ErrorAction SilentlyContinue).VersionInfo.ProductVersion
-          choco --version
+          MODEL_CACHE: D:\models
